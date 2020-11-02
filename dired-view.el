@@ -1,6 +1,6 @@
 ;;; dired-view.el --- dired view mode
 
-;; Copyright (C) 2006 William Xu
+;; Copyright (C) 2006, 2020 William Xu
 
 ;; Author: William Xu <william.xwl@gmail.com>
 ;; Version: 0.1
@@ -32,12 +32,11 @@
 ;;
 ;; To enable it by default,
 ;;
-;;       (add-hook 'dired-mode-hook 'dired-view-minor-mode-on)
+;;       (add-hook 'dired-mode-hook 'dired-view-minor-mode)
 ;;
 ;; Also, you could define keys to toggle it,
 ;;
 ;;       (define-key dired-mode-map (kbd ";") 'dired-view-minor-mode-toggle)
-;;       (define-key dired-mode-map (kbd ":") 'dired-view-minor-mode-dired-toggle)
 
 ;;; Code:
 
@@ -48,68 +47,18 @@ With dired-view-minor-mode enabled, you could jump to files based on
 filenames' first character.
 \\{dired-view-minor-mode-map}."
   nil " Dired-View"
-  '(("a" . (lambda () (interactive) (dired-view-jump "a")))
-    ("b" . (lambda () (interactive) (dired-view-jump "b")))
-    ("c" . (lambda () (interactive) (dired-view-jump "c")))
-    ("d" . (lambda () (interactive) (dired-view-jump "d")))
-    ("e" . (lambda () (interactive) (dired-view-jump "e")))
-    ("f" . (lambda () (interactive) (dired-view-jump "f")))
-    ("g" . (lambda () (interactive) (dired-view-jump "g")))
-    ("h" . (lambda () (interactive) (dired-view-jump "h")))
-    ("i" . (lambda () (interactive) (dired-view-jump "i")))
-    ("j" . (lambda () (interactive) (dired-view-jump "j")))
-    ("k" . (lambda () (interactive) (dired-view-jump "k")))
-    ("l" . (lambda () (interactive) (dired-view-jump "l")))
-    ("m" . (lambda () (interactive) (dired-view-jump "m")))
-    ("n" . (lambda () (interactive) (dired-view-jump "n")))
-    ("o" . (lambda () (interactive) (dired-view-jump "o")))
-    ("p" . (lambda () (interactive) (dired-view-jump "p")))
-    ("q" . (lambda () (interactive) (dired-view-jump "q")))
-    ("r" . (lambda () (interactive) (dired-view-jump "r")))
-    ("s" . (lambda () (interactive) (dired-view-jump "s")))
-    ("t" . (lambda () (interactive) (dired-view-jump "t")))
-    ("u" . (lambda () (interactive) (dired-view-jump "u")))
-    ("v" . (lambda () (interactive) (dired-view-jump "v")))
-    ("w" . (lambda () (interactive) (dired-view-jump "w")))
-    ("x" . (lambda () (interactive) (dired-view-jump "x")))
-    ("y" . (lambda () (interactive) (dired-view-jump "y")))
-    ("z" . (lambda () (interactive) (dired-view-jump "z")))
-    ("A" . (lambda () (interactive) (dired-view-jump "A")))
-    ("B" . (lambda () (interactive) (dired-view-jump "B")))
-    ("C" . (lambda () (interactive) (dired-view-jump "C")))
-    ("D" . (lambda () (interactive) (dired-view-jump "D")))
-    ("E" . (lambda () (interactive) (dired-view-jump "E")))
-    ("F" . (lambda () (interactive) (dired-view-jump "F")))
-    ("G" . (lambda () (interactive) (dired-view-jump "G")))
-    ("H" . (lambda () (interactive) (dired-view-jump "H")))
-    ("I" . (lambda () (interactive) (dired-view-jump "I")))
-    ("J" . (lambda () (interactive) (dired-view-jump "J")))
-    ("K" . (lambda () (interactive) (dired-view-jump "K")))
-    ("L" . (lambda () (interactive) (dired-view-jump "L")))
-    ("M" . (lambda () (interactive) (dired-view-jump "M")))
-    ("N" . (lambda () (interactive) (dired-view-jump "N")))
-    ("O" . (lambda () (interactive) (dired-view-jump "O")))
-    ("P" . (lambda () (interactive) (dired-view-jump "P")))
-    ("Q" . (lambda () (interactive) (dired-view-jump "Q")))
-    ("R" . (lambda () (interactive) (dired-view-jump "R")))
-    ("S" . (lambda () (interactive) (dired-view-jump "S")))
-    ("T" . (lambda () (interactive) (dired-view-jump "T")))
-    ("U" . (lambda () (interactive) (dired-view-jump "U")))
-    ("V" . (lambda () (interactive) (dired-view-jump "V")))
-    ("W" . (lambda () (interactive) (dired-view-jump "W")))
-    ("X" . (lambda () (interactive) (dired-view-jump "X")))
-    ("Y" . (lambda () (interactive) (dired-view-jump "Y")))
-    ("Z" . (lambda () (interactive) (dired-view-jump "Z")))
-    ("1" . (lambda () (interactive) (dired-view-jump "1")))
-    ("2" . (lambda () (interactive) (dired-view-jump "2")))
-    ("3" . (lambda () (interactive) (dired-view-jump "3")))
-    ("4" . (lambda () (interactive) (dired-view-jump "4")))
-    ("5" . (lambda () (interactive) (dired-view-jump "5")))
-    ("6" . (lambda () (interactive) (dired-view-jump "6")))
-    ("7" . (lambda () (interactive) (dired-view-jump "7")))
-    ("8" . (lambda () (interactive) (dired-view-jump "8")))
-    ("9" . (lambda () (interactive) (dired-view-jump "9")))
-    ("0" . (lambda () (interactive) (dired-view-jump "0"))))
+  (let (result)
+    (dotimes (i 26)
+      (let ((l (char-to-string (+ ?a i)))
+            (u (char-to-string (+ ?A i))))
+        (push (cons l `(lambda () (interactive) (dired-view-jump ,l))) result)
+        (push (cons u `(lambda () (interactive) (dired-view-jump ,u))) result)))
+
+    (dotimes (i 10)
+      (let ((num (char-to-string (+ ?0 i))))
+        (push (cons num `(lambda () (interactive) (dired-view-jump ,num))) result)))
+    result)
+
   (setq dired-view-last-arg "")
   (setq dired-view-last-arg-count 0))
 
@@ -121,7 +70,6 @@ filenames' first character.
 
 (defun dired-view-jump (arg)
   "Jump to filename startting with ARG."
-  (interactive)
   (let ((old-arg dired-view-last-arg)
         (old-count dired-view-last-arg-count))
     (unless (string-equal dired-view-last-arg arg)
@@ -162,7 +110,7 @@ filenames' first character.
             (t                          ; not found
              (setq dired-view-last-arg old-arg
                    dired-view-last-arg-count old-count)
-             (message "file not found"))))))
+             (message "No filename starting with `%s' is found" arg))))))
 
 (defun dired-view-minor-mode-on ()
   "Turn on `dired-view-minor-mode'."
@@ -180,18 +128,6 @@ filenames' first character.
   (if dired-view-minor-mode
       (dired-view-minor-mode -1)
     (dired-view-minor-mode 1)))
-
-(defun dired-view-minor-mode-dired-toggle ()
-  "Toggle `dired-view-minor-mode' in dired buffer.
-
-This has long-term effects, i.e., it will also affect newly
-created dired buffers."
-  (interactive)
-  (dired-view-minor-mode-toggle)
-  (cond ((member 'dired-view-minor-mode-on dired-mode-hook)
-         (remove-hook 'dired-mode-hook 'dired-view-minor-mode-on))
-        (t
-         (add-hook 'dired-mode-hook 'dired-view-minor-mode-on))))
 
 (provide 'dired-view)
 
