@@ -110,7 +110,9 @@ filenames' first character.
             (t                          ; not found
              (setq dired-view-last-arg old-arg
                    dired-view-last-arg-count old-count)
-             (message "No filename starting with `%s' is found" arg))))))
+             (message "No filename starting with `%s' is found" arg)
+             (when (featurep 'swiper)
+               (swiper arg)))))))
 
 (defun dired-view-minor-mode-on ()
   "Turn on `dired-view-minor-mode'."
